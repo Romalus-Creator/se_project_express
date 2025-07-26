@@ -1,3 +1,4 @@
+const clothingItem = require("../models/clothingItem");
 const ClothingItem = require("../models/clothingItem");
 const {
   INVALID_DATA_ERROR_CODE,
@@ -7,9 +8,8 @@ const {
 
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  console.log(req.user._id); // _id will become accessible
   ClothingItem.create({ name, weather, imageUrl })
-    .then(() => res.status(201).send({ name, weather, imageUrl }))
+    .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
       if (err.name === "ValidationError") {
         console.error(err);
@@ -69,7 +69,12 @@ const updateClothingItem = (req, res) => {
 
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findByIdAndDelete(
+    itemId,
+    req.params.itemId,
+    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { new: true }
+  )
     .orFail()
     .then((clothingItem) => res.status(204).send(clothingItem))
     .catch((err) => {
@@ -78,10 +83,64 @@ const deleteClothingItem = (req, res) => {
     });
 };
 
+//Controllers for Likes on Clothing Items
+const likeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+    { new: true }
+  )
+    .orFail()
+    .then((clothingItem) => res.status(201).send(clothingItem))
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        console.error(err);
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        console.error(err);
+        return res
+          .status(INVALID_DATA_ERROR_CODE)
+          .send({ message: err.message });
+      }
+      console.error(err);
+      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+    });
+};
+
+const dislikeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { new: true }
+  )
+    .orFail()
+    .then((clothingItem) => res.status(200).send(clothingItem))
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        console.error(err);
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        console.error(err);
+        return res
+          .status(INVALID_DATA_ERROR_CODE)
+          .send({ message: err.message });
+      }
+      console.error(err);
+      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+    });
+};
+
+//Temporary workaround until a future Sprint's project.
+module.exports.createClothingItem = (req, res) => {
+  console.log(req.user._id); // _id will become accessible
+};
+
 module.exports = {
   createClothingItem,
   getClothingItems,
   getClothingItemById,
   updateClothingItem,
   deleteClothingItem,
+  likeItem,
+  dislikeItem,
 };

@@ -50,6 +50,7 @@ const createUser = (req, res) => {
           .status(INVALID_DATA_ERROR_CODE)
           .send({ message: err.message });
       }
+      console.error(err);
       return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
     });
 };
