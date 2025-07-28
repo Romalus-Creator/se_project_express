@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const user = require("./user");
 
-//TODO - Ensure the onwer, likes, and createdAt are done correctly.
 const clothingItemSchema = new mongoose.Schema({
   name: {
     type: String,

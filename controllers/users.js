@@ -26,11 +26,6 @@ const getUserById = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         console.error(err);
         return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
-      } else if (err.name === "CastError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: err.message });
       }
       console.error(err);
       return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });

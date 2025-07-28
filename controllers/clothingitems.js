@@ -1,4 +1,3 @@
-const clothingItem = require("../models/clothingitem");
 const ClothingItem = require("../models/clothingitem");
 const {
   INVALID_DATA_ERROR_CODE,
@@ -9,7 +8,7 @@ const {
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   console.log("Full req.user object in controller:", req.user);
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id }) // add _id to the array if it's not there yet
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user.id }) // add id to the array if it's not there yet
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -73,14 +72,26 @@ const deleteClothingItem = (req, res) => {
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
     .then((clothingItem) => res.status(200).send(clothingItem))
-    .catch();
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        console.error(err);
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        console.error(err);
+        return res
+          .status(INVALID_DATA_ERROR_CODE)
+          .send({ message: err.message });
+      }
+      console.error(err);
+      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+    });
 };
 
-//Controllers for Likes on Clothing Items
+//  Controllers for Likes on Clothing Items
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+    { $addToSet: { likes: req.user.id } }, //  Add id to the array if it's not there yet
     { new: true }
   )
     .orFail()
@@ -103,7 +114,7 @@ const likeItem = (req, res) => {
 const dislikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { $pull: { likes: req.user.id } }, // remove id from the array
     { new: true }
   )
     .orFail()

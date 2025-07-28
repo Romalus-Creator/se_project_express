@@ -14,7 +14,7 @@ mongoose
 
 app.use(express.json());
 
-//temporary workaround until this project is continued in a future sprint
+//  Temporary workaround until this project is continued in a future sprint
 app.use((req, res, next) => {
   console.log("Middleware running");
   req.user = {
