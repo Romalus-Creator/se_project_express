@@ -1,5 +1,5 @@
-const clothingItem = require("../models/clothingItem");
-const ClothingItem = require("../models/clothingItem");
+const clothingItem = require("../models/clothingitem");
+const ClothingItem = require("../models/clothingitem");
 const {
   INVALID_DATA_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
@@ -8,7 +8,8 @@ const {
 
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  ClothingItem.create({ name, weather, imageUrl })
+  console.log("Full req.user object in controller:", req.user);
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id }) // add _id to the array if it's not there yet
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -69,18 +70,10 @@ const updateClothingItem = (req, res) => {
 
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(
-    itemId,
-    req.params.itemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
-    { new: true }
-  )
+  ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((clothingItem) => res.status(204).send(clothingItem))
-    .catch((err) => {
-      console.error(err);
-      return res.sendStatus(DEFAULT_ERROR_CODE).send({ message: err.message });
-    });
+    .then((clothingItem) => res.status(200).send(clothingItem))
+    .catch();
 };
 
 //Controllers for Likes on Clothing Items
@@ -128,11 +121,6 @@ const dislikeItem = (req, res) => {
       console.error(err);
       return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
     });
-};
-
-//Temporary workaround until a future Sprint's project.
-module.exports.createClothingItem = (req, res) => {
-  console.log(req.user._id); // _id will become accessible
 };
 
 module.exports = {

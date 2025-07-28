@@ -16,8 +16,9 @@ app.use(express.json());
 
 //temporary workaround until this project is continued in a future sprint
 app.use((req, res, next) => {
+  console.log("Middleware running");
   req.user = {
-    _id: "6882cd1b7da154aa9060e506",
+    _id: "688228927dfcb4805acfc159",
   };
   next();
 });

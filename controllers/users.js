@@ -25,9 +25,7 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: err.message });
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
       } else if (err.name === "CastError") {
         console.error(err);
         return res
@@ -42,7 +40,7 @@ const getUserById = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
   User.create({ name, avatar })
-    .then(() => res.status(201).send({ name, avatar }))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         console.error(err);
