@@ -15,7 +15,7 @@ router.post("/", createClothingItem);
 router.put("/:itemId", updateClothingItem);
 router.delete("/:itemId", deleteClothingItem);
 
-//Routes for Likes on Clothing Items
+//  Routes for Likes on Clothing Items
 router.put("/:itemId/likes", likeItem);
 router.delete("/:itemId/likes", dislikeItem);
 

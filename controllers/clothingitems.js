@@ -8,7 +8,7 @@ const {
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   console.log("Full req.user object in controller:", req.user);
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user.id }) // add id to the array if it's not there yet
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id }) // add id to the array if it's not there yet
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -91,7 +91,7 @@ const deleteClothingItem = (req, res) => {
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $addToSet: { likes: req.user.id } }, //  Add id to the array if it's not there yet
+    { $addToSet: { likes: req.user._id } }, //  Add id to the array if it's not there yet
     { new: true }
   )
     .orFail()
@@ -114,7 +114,7 @@ const likeItem = (req, res) => {
 const dislikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user.id } }, // remove id from the array
+    { $pull: { likes: req.user._id } }, //  Remove id from the array
     { new: true }
   )
     .orFail()
