@@ -11,7 +11,6 @@ router.use("/users", userRouter);
 router.use("/items", clothingItemRouter);
 
 router.use((req, res) => {
-  console.error(err);
   return res
     .status(NOT_FOUND_ERROR_CODE)
     .send({ message: NOT_FOUND_ERROR_MESSAGE });
