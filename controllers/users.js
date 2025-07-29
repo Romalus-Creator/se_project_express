@@ -1,8 +1,11 @@
 const User = require("../models/user");
 const {
   INVALID_DATA_ERROR_CODE,
+  INVALID_DATA_ERROR_MESSAGE,
   NOT_FOUND_ERROR_CODE,
+  NOT_FOUND_ERROR_MESSAGE,
   DEFAULT_ERROR_CODE,
+  DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errors");
 
 const getUsers = (req, res) => {
@@ -10,7 +13,9 @@ const getUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.error(err);
-      return res.sendStatus(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .sendStatus(DEFAULT_ERROR_CODE)
+        .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
 
@@ -25,16 +30,20 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         console.error(err);
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+        return res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: NOT_FOUND_ERROR_MESSAGE });
       }
       if (err.name === "CastError") {
         console.error(err);
         return res
           .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: err.message });
+          .send({ message: INVALID_DATA_ERROR_MESSAGE });
       }
       console.error(err);
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
 
@@ -47,10 +56,12 @@ const createUser = (req, res) => {
         console.error(err);
         return res
           .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: err.message });
+          .send({ message: INVALID_DATA_ERROR_MESSAGE });
       }
       console.error(err);
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
 
