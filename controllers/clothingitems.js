@@ -63,7 +63,14 @@ const deleteClothingItem = (req, res) => {
           .status(INVALID_DATA_ERROR_CODE)
           .send({ message: INVALID_DATA_ERROR_MESSAGE });
       }
+      if (err.name === "MongoServerError") {
+        console.error(err);
+        return res
+          .status(INCORRECT_USER_ERROR_CODE)
+          .send({ message: INCORRECT_USER_ERROR_MESSAGE });
+      }
       console.error(err);
+      console.log(err.name);
       return res
         .status(DEFAULT_ERROR_CODE)
         .send({ message: DEFAULT_ERROR_MESSAGE });

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
 const {
   INVALID_DATA_ERROR_CODE,
   INVALID_DATA_ERROR_MESSAGE,

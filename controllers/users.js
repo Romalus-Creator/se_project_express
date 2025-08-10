@@ -31,13 +31,15 @@ const getUsers = (req, res) => {
     });
 };
 
-const getUserById = (req, res) => {
-  const { userId } = req.params;
-  console.log(`userID: ${userId}`);
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
   User.findById(userId)
     .orFail()
     .then((user) => {
-      res.status(200).send(user);
+      const name = user.name;
+      const email = user.email;
+      const avatar = user.avatar;
+      res.status(200).send({ name, email, avatar });
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
@@ -56,6 +58,35 @@ const getUserById = (req, res) => {
       return res
         .status(DEFAULT_ERROR_CODE)
         .send({ message: DEFAULT_ERROR_MESSAGE });
+    });
+};
+
+const modifyCurrentUser = (req, res) => {
+  const userId = req.user._id;
+  const updateObject = {};
+  function updateNameFunc(blankObject) {
+    if (req.body.name && req.body.name != "" && req.body.name != undefined) {
+      blankObject["name"] = req.body.name;
+    }
+  }
+
+  function updateAvatarFunc(blankObject) {
+    if (
+      req.body.avatar &&
+      req.body.avatar != "" &&
+      req.body.avatar != undefined
+    ) {
+      blankObject["avatar"] = req.body.avatar;
+    }
+  }
+
+  updateNameFunc(updateObject);
+  updateAvatarFunc(updateObject);
+  console.log(updateObject);
+  User.findByIdAndUpdate(userId, { $set: updateObject }, { new: true })
+    .orFail()
+    .then(() => {
+      res.status(200).send(updateObject);
     });
 };
 
@@ -102,7 +133,6 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res;
       res.status(200).send({ token });
     })
     .catch((err) => {
@@ -122,4 +152,10 @@ const login = (req, res) => {
   //  Send JWT to the client as JSON Body.
   //  if email & pass are NOT good, return 401 error.
 };
-module.exports = { getUsers, getUserById, createUser, login };
+module.exports = {
+  getUsers,
+  getCurrentUser,
+  modifyCurrentUser,
+  createUser,
+  login,
+};

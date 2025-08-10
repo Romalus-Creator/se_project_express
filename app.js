@@ -14,15 +14,6 @@ mongoose
 
 app.use(express.json());
 
-//  Temporary workaround until this project is continued in a future sprint
-app.use((req, res, next) => {
-  // console.log("Middleware running");
-  req.user = {
-    _id: "688228927dfcb4805acfc159",
-  };
-  next();
-});
-
 app.use("/", mainIndex);
 
 app.listen(PORT, () => {
