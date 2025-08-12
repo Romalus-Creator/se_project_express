@@ -4,14 +4,8 @@ const {
   INVALID_DATA_ERROR_MESSAGE,
   INCORRECT_USER_ERROR_CODE,
   INCORRECT_USER_ERROR_MESSAGE,
-  UNAUTHORIZED_USER_ERROR_CODE,
-  UNAUTHORIZED_USER_ERROR_MESSAGE,
-  UNAUTHORIZED_USER_LOGIN_MESSAGE,
   NOT_FOUND_ERROR_CODE,
   NOT_FOUND_ERROR_MESSAGE,
-  CONFLICT_ERROR_CODE,
-  CONFLICT_ERROR_MESSAGE,
-  CONFLICT_EMAIL_ERROR_MESSAGE,
   DEFAULT_ERROR_CODE,
   DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errors");
@@ -53,12 +47,9 @@ const deleteClothingItem = (req, res) => {
         if (
           JSON.stringify(clothingItem.owner) === JSON.stringify(req.user._id)
         ) {
-          console.log(true);
           return resolve(ClothingItem.findByIdAndDelete(req.params.itemId));
-        } else {
-          console.log(false);
-          return reject(new Error(INCORRECT_USER_ERROR_MESSAGE));
         }
+        return reject(new Error(INCORRECT_USER_ERROR_MESSAGE));
       });
     })
     .then((clothingItem) => {

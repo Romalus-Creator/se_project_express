@@ -6,15 +6,11 @@ const User = require("../models/user");
 const {
   INVALID_DATA_ERROR_CODE,
   INVALID_DATA_ERROR_MESSAGE,
-  INCORRECT_USER_ERROR_CODE,
-  INCORRECT_USER_ERROR_MESSAGE,
   UNAUTHORIZED_USER_ERROR_CODE,
-  UNAUTHORIZED_USER_ERROR_MESSAGE,
   UNAUTHORIZED_USER_LOGIN_MESSAGE,
   NOT_FOUND_ERROR_CODE,
   NOT_FOUND_ERROR_MESSAGE,
   CONFLICT_ERROR_CODE,
-  CONFLICT_ERROR_MESSAGE,
   CONFLICT_EMAIL_ERROR_MESSAGE,
   DEFAULT_ERROR_CODE,
   DEFAULT_ERROR_MESSAGE,
@@ -36,10 +32,7 @@ const getCurrentUser = (req, res) => {
   User.findById(userId)
     .orFail()
     .then((user) => {
-      const name = user.name;
-      const email = user.email;
-      const avatar = user.avatar;
-      res.status(200).send({ name, email, avatar });
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
@@ -63,9 +56,9 @@ const getCurrentUser = (req, res) => {
 
 const modifyCurrentUser = (req, res) => {
   const userId = req.user._id;
-  const updateObject = {};
+  let updateObject = {};
   function updateNameFunc(blankObject) {
-    if (req.body.name && req.body.name != "" && req.body.name != undefined) {
+    if (req.body.name && req.body.name !== "" && req.body.name !== undefined) {
       blankObject["name"] = req.body.name;
     }
   }
@@ -73,8 +66,8 @@ const modifyCurrentUser = (req, res) => {
   function updateAvatarFunc(blankObject) {
     if (
       req.body.avatar &&
-      req.body.avatar != "" &&
-      req.body.avatar != undefined
+      req.body.avatar !== "" &&
+      req.body.avatar !== undefined
     ) {
       blankObject["avatar"] = req.body.avatar;
     }
