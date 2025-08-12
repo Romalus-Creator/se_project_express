@@ -60,7 +60,8 @@ const modifyCurrentUser = (req, res) => {
   function updateNameFunc(object) {
     const blankObject = object;
     if (req.body.name && req.body.name !== "" && req.body.name !== undefined) {
-      return (blankObject.name = req.body.name);
+      blankObject.name = req.body.name;
+      return blankObject;
     }
   }
 
@@ -71,7 +72,8 @@ const modifyCurrentUser = (req, res) => {
       req.body.avatar !== "" &&
       req.body.avatar !== undefined
     ) {
-      return (blankObject.avatar = req.body.avatar);
+      blankObject.avatar = req.body.avatar;
+      return blankObject;
     }
   }
 
