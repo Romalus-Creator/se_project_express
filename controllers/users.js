@@ -56,20 +56,22 @@ const getCurrentUser = (req, res) => {
 
 const modifyCurrentUser = (req, res) => {
   const userId = req.user._id;
-  let updateObject = {};
-  function updateNameFunc(blankObject) {
+  const updateObject = {};
+  function updateNameFunc(object) {
+    const blankObject = object;
     if (req.body.name && req.body.name !== "" && req.body.name !== undefined) {
-      blankObject["name"] = req.body.name;
+      return (blankObject.name = req.body.name);
     }
   }
 
-  function updateAvatarFunc(blankObject) {
+  function updateAvatarFunc(object) {
+    const blankObject = object;
     if (
       req.body.avatar &&
       req.body.avatar !== "" &&
       req.body.avatar !== undefined
     ) {
-      blankObject["avatar"] = req.body.avatar;
+      return (blankObject.avatar = req.body.avatar);
     }
   }
 
@@ -171,6 +173,7 @@ const login = (req, res) => {
   //  Send JWT to the client as JSON Body.
   //  if email & pass are NOT good, return 401 error.
 };
+
 module.exports = {
   getUsers,
   getCurrentUser,
