@@ -13,10 +13,15 @@ module.exports = (req, res, next) => {
       .status(UNAUTHORIZED_USER_ERROR_CODE)
       .send({ message: UNAUTHORIZED_USER_ERROR_MESSAGE });
   }
-  const token = authorization.replace("Bearer ", "");
-
-  const payload = jwt.verify(token, JWT_SECRET);
-
-  req.user = payload;
-  next();
+  try {
+    const token = authorization.replace("Bearer ", "");
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(UNAUTHORIZED_USER_ERROR_CODE)
+      .send({ message: UNAUTHORIZED_USER_ERROR_MESSAGE });
+  }
 };

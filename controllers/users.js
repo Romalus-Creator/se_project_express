@@ -22,7 +22,7 @@ const getUsers = (req, res) => {
     .catch((err) => {
       console.error(err);
       return res
-        .sendStatus(DEFAULT_ERROR_CODE)
+        .status(DEFAULT_ERROR_CODE)
         .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
@@ -75,11 +75,38 @@ const modifyCurrentUser = (req, res) => {
 
   updateNameFunc(updateObject);
   updateAvatarFunc(updateObject);
-  console.log(updateObject);
-  User.findByIdAndUpdate(userId, { $set: updateObject }, { new: true })
+  User.findByIdAndUpdate(
+    userId,
+    { $set: updateObject },
+    { new: true, runValidators: true }
+  )
     .orFail()
-    .then(() => {
-      res.status(200).send(updateObject);
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        console.error(err);
+        return res
+          .status(INVALID_DATA_ERROR_CODE)
+          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        console.error(err);
+        return res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: NOT_FOUND_ERROR_MESSAGE });
+      }
+      if (err.name === "CastError") {
+        console.error(err);
+        return res
+          .status(INVALID_DATA_ERROR_CODE)
+          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+      }
+      console.error(err);
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
 
@@ -120,7 +147,6 @@ const login = (req, res) => {
   //  get email & pass from createUser (the request).
   const { email, password } = req.body;
 
-  console.log(`email: ${email}, password: ${password}.`);
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {

@@ -12,7 +12,6 @@ const {
 
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  console.log("Full req.user object in controller:", req.user);
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id }) // add id to the array if it's not there yet
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
@@ -34,7 +33,7 @@ const getClothingItems = (req, res) => {
     .catch((err) => {
       console.error(err);
       return res
-        .sendStatus(DEFAULT_ERROR_CODE)
+        .status(DEFAULT_ERROR_CODE)
         .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
@@ -54,9 +53,6 @@ const deleteClothingItem = (req, res) => {
     })
     .then((clothingItem) => {
       res.status(200).send(clothingItem);
-      console.log(
-        `clothingOwner: ${clothingItem.owner}, loggedInUser: ${req.user._id}.`
-      );
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
