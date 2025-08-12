@@ -22,7 +22,7 @@ const CONFLICT_ERROR_CODE = 409;
 const CONFLICT_ERROR_MESSAGE = "Conflict error";
 const CONFLICT_EMAIL_ERROR_MESSAGE = "This email or username is already used";
 
-//  500 - default error. Accompanied by the message: "An error has occurred on the server."
+//  500 - default error. Accompanied by the message: "An error has occurred on the   server."
 const DEFAULT_ERROR_CODE = 500;
 const DEFAULT_ERROR_MESSAGE = "An error has occurred on the server";
 

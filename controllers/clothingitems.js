@@ -46,10 +46,27 @@ const getClothingItems = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(req.params.itemId)
     .orFail()
-    .then((clothingItem) => res.status(200).send(clothingItem))
+    .then((clothingItem) => {
+      return new Promise((resolve, reject) => {
+        if (
+          JSON.stringify(clothingItem.owner) === JSON.stringify(req.user._id)
+        ) {
+          console.log(true);
+          return resolve(ClothingItem.findByIdAndDelete(req.params.itemId));
+        } else {
+          console.log(false);
+          return reject(new Error(INCORRECT_USER_ERROR_MESSAGE));
+        }
+      });
+    })
+    .then((clothingItem) => {
+      res.status(200).send(clothingItem);
+      console.log(
+        `clothingOwner: ${clothingItem.owner}, loggedInUser: ${req.user._id}.`
+      );
+    })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         console.error(err);
@@ -63,14 +80,13 @@ const deleteClothingItem = (req, res) => {
           .status(INVALID_DATA_ERROR_CODE)
           .send({ message: INVALID_DATA_ERROR_MESSAGE });
       }
-      if (err.name === "MongoServerError") {
+      if (err.name === "Error" || err.name === "MongooseServerError") {
         console.error(err);
         return res
           .status(INCORRECT_USER_ERROR_CODE)
           .send({ message: INCORRECT_USER_ERROR_MESSAGE });
       }
       console.error(err);
-      console.log(err.name);
       return res
         .status(DEFAULT_ERROR_CODE)
         .send({ message: DEFAULT_ERROR_MESSAGE });
