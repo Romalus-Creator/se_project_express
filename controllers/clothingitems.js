@@ -42,7 +42,7 @@ const deleteClothingItem = (req, res) => {
   ClothingItem.findById(req.params.itemId)
     .orFail()
     .then((clothingItem) => {
-      return new Promise((resolve, reject) => {
+      Promise((resolve, reject) => {
         if (
           JSON.stringify(clothingItem.owner) === JSON.stringify(req.user._id)
         ) {
@@ -67,7 +67,7 @@ const deleteClothingItem = (req, res) => {
           .status(INVALID_DATA_ERROR_CODE)
           .send({ message: INVALID_DATA_ERROR_MESSAGE });
       }
-      if (err.name === "Error" || err.name === "MongooseServerError") {
+      if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
         console.error(err);
         return res
           .status(INCORRECT_USER_ERROR_CODE)

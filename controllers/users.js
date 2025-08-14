@@ -16,17 +16,6 @@ const {
   DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
-    });
-};
-
 const getCurrentUser = (req, res) => {
   const userId = req.user._id;
   User.findById(userId)
@@ -63,6 +52,7 @@ const modifyCurrentUser = (req, res) => {
       blankObject.name = req.body.name;
       return blankObject;
     }
+    return blankObject;
   }
 
   function updateAvatarFunc(object) {
@@ -75,6 +65,7 @@ const modifyCurrentUser = (req, res) => {
       blankObject.avatar = req.body.avatar;
       return blankObject;
     }
+    return blankObject;
   }
 
   updateNameFunc(updateObject);
@@ -165,10 +156,16 @@ const login = (req, res) => {
           .status(INVALID_DATA_ERROR_CODE)
           .send({ message: INVALID_DATA_ERROR_MESSAGE });
       }
+      if (err.message.includes("Incorrect email or password")) {
+        console.error(err);
+        return res
+          .status(UNAUTHORIZED_USER_ERROR_CODE)
+          .send({ message: UNAUTHORIZED_USER_LOGIN_MESSAGE });
+      }
       console.error(err);
       return res
-        .status(UNAUTHORIZED_USER_ERROR_CODE)
-        .send({ message: UNAUTHORIZED_USER_LOGIN_MESSAGE });
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: DEFAULT_ERROR_MESSAGE });
     });
   //  if email & pass are good, create a JWT with one week expiration
   //  on the JWT, write user._id into the token payload.
@@ -177,7 +174,6 @@ const login = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   getCurrentUser,
   modifyCurrentUser,
   createUser,
