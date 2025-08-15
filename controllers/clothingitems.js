@@ -41,16 +41,17 @@ const getClothingItems = (req, res) => {
 const deleteClothingItem = (req, res) => {
   ClothingItem.findById(req.params.itemId)
     .orFail()
-    .then((clothingItem) => {
-      Promise((resolve, reject) => {
-        if (
-          JSON.stringify(clothingItem.owner) === JSON.stringify(req.user._id)
-        ) {
-          return resolve(ClothingItem.findByIdAndDelete(req.params.itemId));
-        }
-        return reject(new Error(INCORRECT_USER_ERROR_MESSAGE));
-      });
-    })
+    .then(
+      (clothingItem) =>
+        new Promise((resolve, reject) => {
+          if (
+            JSON.stringify(clothingItem.owner) === JSON.stringify(req.user._id)
+          ) {
+            resolve(ClothingItem.findByIdAndDelete(req.params.itemId));
+          }
+          reject(new Error(INCORRECT_USER_ERROR_MESSAGE));
+        })
+    )
     .then((clothingItem) => {
       res.status(200).send(clothingItem);
     })
