@@ -3,7 +3,7 @@ const { JWT_SECRET } = require("../utils/config");
 const {
   UNAUTHORIZED_USER_ERROR_CODE,
   UNAUTHORIZED_USER_ERROR_MESSAGE,
-} = require("../utils/errors");
+} = require("../utils/errorCodes");
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;

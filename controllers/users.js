@@ -14,7 +14,13 @@ const {
   CONFLICT_EMAIL_ERROR_MESSAGE,
   DEFAULT_ERROR_CODE,
   DEFAULT_ERROR_MESSAGE,
-} = require("../utils/errors");
+} = require("../utils/errorCodes");
+
+const ConflictError = require("../errors/conflicterr");
+const IncorrectUserError = require("../errors/incorrectusererr");
+const InvalidDataError = require("../errors/invaliddataerr");
+const NotFoundError = require("../errors/notfounderr");
+const UnauthorizedUserError = require("../errors/unauthorizedusererr");
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id;
@@ -147,7 +153,8 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.status(200).send({ token });
+      const name = user.name;
+      res.status(200).send({ token, name });
     })
     .catch((err) => {
       if (email === undefined || password === undefined) {

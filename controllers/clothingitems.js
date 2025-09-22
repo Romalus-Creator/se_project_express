@@ -8,37 +8,38 @@ const {
   NOT_FOUND_ERROR_MESSAGE,
   DEFAULT_ERROR_CODE,
   DEFAULT_ERROR_MESSAGE,
-} = require("../utils/errors");
+} = require("../utils/errorCodes");
 
-const createClothingItem = (req, res) => {
+const ConflictError = require("../errors/conflicterr");
+const IncorrectUserError = require("../errors/incorrectusererr");
+const InvalidDataError = require("../errors/invaliddataerr");
+const NotFoundError = require("../errors/notfounderr");
+const UnauthorizedUserError = require("../errors/unauthorizedusererr");
+
+const createClothingItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id }) // add id to the array if it's not there yet
-    .then((clothingItem) => res.status(201).send(clothingItem))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+    .then((clothingItem) => {
+      if (!clothingItem) {
+        throw new InvalidDataError(INVALID_DATA_ERROR_MESSAGE);
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
-    });
+      res.status(200).send(clothingItem);
+    })
+    .catch(next);
 };
 
-const getClothingItems = (req, res) => {
+const getClothingItems = (req, res, next) => {
   ClothingItem.find({})
-    .then((clothingItems) => res.status(200).send(clothingItems))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
-    });
+    .then((clothingItems) => {
+      if (!clothingItems) {
+        throw new InvalidDataError(INVALID_DATA_ERROR_MESSAGE);
+      }
+      res.status(200).send(clothingItems);
+    })
+    .catch(next);
 };
 
-const deleteClothingItem = (req, res) => {
+const deleteClothingItem = (req, res, next) => {
   ClothingItem.findById(req.params.itemId)
     .orFail()
     .then(
@@ -49,7 +50,7 @@ const deleteClothingItem = (req, res) => {
           ) {
             resolve(ClothingItem.findByIdAndDelete(req.params.itemId));
           }
-          reject(new Error(INCORRECT_USER_ERROR_MESSAGE));
+          reject(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
         })
     )
     .then((clothingItem) => {
@@ -57,32 +58,20 @@ const deleteClothingItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        console.error(err);
-        return res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: NOT_FOUND_ERROR_MESSAGE });
+        next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
       if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
-        console.error(err);
-        return res
-          .status(INCORRECT_USER_ERROR_CODE)
-          .send({ message: INCORRECT_USER_ERROR_MESSAGE });
+        next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
       }
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
+      next(new Error(DEFAULT_ERROR_MESSAGE));
     });
 };
 
 //  Controllers for Likes on Clothing Items
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } }, //  Add id to the array if it's not there yet
@@ -92,23 +81,16 @@ const likeItem = (req, res) => {
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        console.error(err);
-        return res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: NOT_FOUND_ERROR_MESSAGE });
+        next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
-      console.error(err);
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      next(new Error(DEFAULT_ERROR_MESSAGE));
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } }, //  Remove id from the array
@@ -118,19 +100,12 @@ const dislikeItem = (req, res) => {
     .then((clothingItem) => res.status(200).send(clothingItem))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        console.error(err);
-        return res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: NOT_FOUND_ERROR_MESSAGE });
+        next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
-      console.error(err);
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      next(new Error(DEFAULT_ERROR_MESSAGE));
     });
 };
 
