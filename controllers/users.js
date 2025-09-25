@@ -6,11 +6,15 @@ const User = require("../models/user");
 const {
   INVALID_DATA_ERROR_CODE,
   INVALID_DATA_ERROR_MESSAGE,
+  INCORRECT_USER_ERROR_CODE,
+  INCORRECT_USER_ERROR_MESSAGE,
   UNAUTHORIZED_USER_ERROR_CODE,
+  UNAUTHORIZED_USER_ERROR_MESSAGE,
   UNAUTHORIZED_USER_LOGIN_MESSAGE,
   NOT_FOUND_ERROR_CODE,
   NOT_FOUND_ERROR_MESSAGE,
   CONFLICT_ERROR_CODE,
+  CONFLICT_ERROR_MESSAGE,
   CONFLICT_EMAIL_ERROR_MESSAGE,
   DEFAULT_ERROR_CODE,
   DEFAULT_ERROR_MESSAGE,
@@ -22,8 +26,9 @@ const InvalidDataError = require("../errors/invaliddataerr");
 const NotFoundError = require("../errors/notfounderr");
 const UnauthorizedUserError = require("../errors/unauthorizedusererr");
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
+  console.log("User ID from token:", userId);
   User.findById(userId)
     .orFail()
     .then((user) => {
@@ -31,25 +36,19 @@ const getCurrentUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        console.error(err);
-        return res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: NOT_FOUND_ERROR_MESSAGE });
+        return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
+      if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
+        return next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
+      }
+      next(err);
     });
 };
 
-const modifyCurrentUser = (req, res) => {
+const modifyCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const updateObject = {};
   function updateNameFunc(object) {
@@ -87,31 +86,22 @@ const modifyCurrentUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
       if (err.name === "DocumentNotFoundError") {
-        console.error(err);
-        return res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: NOT_FOUND_ERROR_MESSAGE });
+        return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
+      if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
+        return next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
+      }
+      next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email } = req.body;
   bcrypt
     .hash(req.body.password, 10)
@@ -126,25 +116,16 @@ const createUser = (req, res) => {
     .then(() => res.status(201).send({ name, email, avatar }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
       if (err.name === "MongoServerError") {
-        console.error(err);
-        return res
-          .status(CONFLICT_ERROR_CODE)
-          .send({ message: CONFLICT_EMAIL_ERROR_MESSAGE });
+        return next(new ConflictError(CONFLICT_EMAIL_ERROR_MESSAGE));
       }
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
+      next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   //  get email & pass from createUser (the request).
   const { email, password } = req.body;
 
@@ -158,21 +139,12 @@ const login = (req, res) => {
     })
     .catch((err) => {
       if (email === undefined || password === undefined) {
-        console.error(err);
-        return res
-          .status(INVALID_DATA_ERROR_CODE)
-          .send({ message: INVALID_DATA_ERROR_MESSAGE });
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
       if (err.message.includes("Incorrect email or password")) {
-        console.error(err);
-        return res
-          .status(UNAUTHORIZED_USER_ERROR_CODE)
-          .send({ message: UNAUTHORIZED_USER_LOGIN_MESSAGE });
+        return next(new UnauthorizedUserError(UNAUTHORIZED_USER_LOGIN_MESSAGE));
       }
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
+      next(err);
     });
   //  if email & pass are good, create a JWT with one week expiration
   //  on the JWT, write user._id into the token payload.

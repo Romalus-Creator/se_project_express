@@ -58,13 +58,13 @@ const deleteClothingItem = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
+        return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
       if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
-        next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
+        return next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
       }
       next(err);
     });
@@ -80,14 +80,15 @@ const likeItem = (req, res, next) => {
     .orFail()
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
+      console.log(`err name: ${err.name}`);
       if (err.name === "DocumentNotFoundError") {
-        console.log(`reached the if statement!`);
-        next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
+        return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -101,10 +102,10 @@ const dislikeItem = (req, res, next) => {
     .then((clothingItem) => res.status(200).send(clothingItem))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
+        return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
+        return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
       next(err);
     });

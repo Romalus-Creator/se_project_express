@@ -27,6 +27,7 @@ app.use(express.json());
 app.use("/", mainIndex);
 
 app.use(errorLogger);
+
 // celebrate error handler
 app.use(errors());
 
