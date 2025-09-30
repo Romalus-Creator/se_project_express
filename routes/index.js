@@ -17,6 +17,7 @@ const clothingItemRouter = require("./clothingitems");
 
 router.use("/users", auth, userRouter);
 router.use("/items", clothingItemRouter);
+
 //sign in
 router.post("/signin", validateSignIn(), login);
 
