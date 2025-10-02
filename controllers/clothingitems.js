@@ -1,20 +1,14 @@
 const ClothingItem = require("../models/clothingitem");
 const {
-  INVALID_DATA_ERROR_CODE,
   INVALID_DATA_ERROR_MESSAGE,
   INCORRECT_USER_ERROR_CODE,
   INCORRECT_USER_ERROR_MESSAGE,
-  NOT_FOUND_ERROR_CODE,
   NOT_FOUND_ERROR_MESSAGE,
-  DEFAULT_ERROR_CODE,
-  DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errorCodes");
 
-const ConflictError = require("../errors/conflicterr");
 const IncorrectUserError = require("../errors/incorrectusererr");
 const InvalidDataError = require("../errors/invaliddataerr");
 const NotFoundError = require("../errors/notfounderr");
-const UnauthorizedUserError = require("../errors/unauthorizedusererr");
 
 const createClothingItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
@@ -34,7 +28,7 @@ const getClothingItems = (req, res, next) => {
       if (!clothingItems) {
         throw new InvalidDataError(INVALID_DATA_ERROR_MESSAGE);
       }
-      res.status(200).send(clothingItems);
+      return res.status(200).send(clothingItems);
     })
     .catch(next);
 };
@@ -53,9 +47,7 @@ const deleteClothingItem = (req, res, next) => {
           reject(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
         })
     )
-    .then((clothingItem) => {
-      res.status(200).send(clothingItem);
-    })
+    .then((clothingItem) => res.status(200).send(clothingItem))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
@@ -66,7 +58,7 @@ const deleteClothingItem = (req, res, next) => {
       if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
         return next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -80,15 +72,13 @@ const likeItem = (req, res, next) => {
     .orFail()
     .then((clothingItem) => res.status(201).send(clothingItem))
     .catch((err) => {
-      console.log(`err name: ${err.name}`);
       if (err.name === "DocumentNotFoundError") {
         return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
         return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
-      } else {
-        next(err);
       }
+      return next(err);
     });
 };
 
@@ -107,7 +97,7 @@ const dislikeItem = (req, res, next) => {
       if (err.name === "CastError") {
         return next(new InvalidDataError(INVALID_DATA_ERROR_MESSAGE));
       }
-      next(err);
+      return next(err);
     });
 };
 

@@ -8,8 +8,8 @@ const validateURL = (value, helpers) => {
   return helpers.error("string.uri");
 };
 
-const validateItemId = () => {
-  return celebrate({
+const validateItemId = () =>
+  celebrate({
     params: Joi.object().keys({
       itemId: Joi.string().alphanum().length(24).messages({
         "string.length": "Item Id must be 24 characters long.",
@@ -17,10 +17,9 @@ const validateItemId = () => {
       }),
     }),
   });
-};
 
-const validateUserId = () => {
-  return celebrate({
+const validateUserId = () =>
+  celebrate({
     params: Joi.object().keys({
       _id: Joi.string().alphanum().length(24).messages({
         "string.length": "User Id must be 24 characters long.",
@@ -28,10 +27,9 @@ const validateUserId = () => {
       }),
     }),
   });
-};
 
-const validateClothingCreation = () => {
-  return celebrate({
+const validateClothingCreation = () =>
+  celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30).messages({
         "string.min": 'The minimum length of the "name" field is 2',
@@ -47,10 +45,9 @@ const validateClothingCreation = () => {
       }),
     }),
   });
-};
 
-const validateGetClothingItem = () => {
-  return celebrate({
+const validateGetClothingItem = () =>
+  celebrate({
     body: Joi.object().keys({
       _id: Joi.string().hex().required().length(24).messages({
         "string.max": 'The maximum length of the "id" field is 24',
@@ -58,10 +55,9 @@ const validateGetClothingItem = () => {
       }),
     }),
   });
-};
 
-const validateSignIn = () => {
-  return celebrate({
+const validateSignIn = () =>
+  celebrate({
     body: Joi.object().keys({
       email: Joi.string().email().required().min(2).messages({
         "string.min": 'The minimum length of the "email" field is 2',
@@ -73,10 +69,9 @@ const validateSignIn = () => {
       }),
     }),
   });
-};
 
-const validateSignUp = () => {
-  return celebrate({
+const validateSignUp = () =>
+  celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30).messages({
         "string.min": 'The minimum length of the "name" field is 2',
@@ -102,7 +97,26 @@ const validateSignUp = () => {
       }),
     }),
   });
-};
+
+const validateModifiedUser = () =>
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().required().min(2).max(30).messages({
+        "string.min": 'The minimum length of the "name" field is 2',
+        "string.max": 'The maximum length of the "name" field is 30',
+        "string.empty": 'The "name" field must be filled in',
+      }),
+      avatar: Joi.string()
+        .uri()
+        .required()
+        .min(2)
+        .custom(validateURL)
+        .messages({
+          "string.empty": 'The "avatar" field must be filled in',
+          "string.uri": 'the "avatar" field must be a valid url',
+        }),
+    }),
+  });
 
 module.exports = {
   validateURL,
@@ -112,4 +126,5 @@ module.exports = {
   validateGetClothingItem,
   validateSignIn,
   validateSignUp,
+  validateModifiedUser,
 };

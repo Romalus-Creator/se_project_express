@@ -1,4 +1,11 @@
+# WTWR (What to Wear?): Front End
+
+- The deployed website can be found at: https://www.what2wear.jumpingcrab.com/
+- The front end repo can be found at: https://github.com/Romalus-Creator/se_project_react
+
 # WTWR (What to Wear?): Back End
+
+- Back end of the website can be found at: https://api.what2wear.jumpingcrab.com/
 
 The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
 

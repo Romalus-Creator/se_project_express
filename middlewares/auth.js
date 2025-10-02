@@ -4,25 +4,20 @@ const {
   UNAUTHORIZED_USER_ERROR_CODE,
   UNAUTHORIZED_USER_ERROR_MESSAGE,
 } = require("../utils/errorCodes");
+const UnauthorizedUserError = require("../errors/unauthorizedusererr");
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer")) {
-    return res
-      .status(UNAUTHORIZED_USER_ERROR_CODE)
-      .send({ message: UNAUTHORIZED_USER_ERROR_MESSAGE });
+    return next(new UnauthorizedUserError(UNAUTHORIZED_USER_ERROR_MESSAGE));
   }
   try {
     const token = authorization.replace("Bearer ", "");
     const payload = jwt.verify(token, JWT_SECRET);
     req.user = payload;
-    console.log("JWT payload:", payload);
     return next();
   } catch (err) {
-    console.error(err);
-    return res
-      .status(UNAUTHORIZED_USER_ERROR_CODE)
-      .send({ message: UNAUTHORIZED_USER_ERROR_MESSAGE });
+    return next(new UnauthorizedUserError(UNAUTHORIZED_USER_ERROR_MESSAGE));
   }
 };

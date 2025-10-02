@@ -4,20 +4,12 @@ const { JWT_SECRET } = require("../utils/config");
 
 const User = require("../models/user");
 const {
-  INVALID_DATA_ERROR_CODE,
   INVALID_DATA_ERROR_MESSAGE,
   INCORRECT_USER_ERROR_CODE,
   INCORRECT_USER_ERROR_MESSAGE,
-  UNAUTHORIZED_USER_ERROR_CODE,
-  UNAUTHORIZED_USER_ERROR_MESSAGE,
   UNAUTHORIZED_USER_LOGIN_MESSAGE,
-  NOT_FOUND_ERROR_CODE,
   NOT_FOUND_ERROR_MESSAGE,
-  CONFLICT_ERROR_CODE,
-  CONFLICT_ERROR_MESSAGE,
   CONFLICT_EMAIL_ERROR_MESSAGE,
-  DEFAULT_ERROR_CODE,
-  DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errorCodes");
 
 const ConflictError = require("../errors/conflicterr");
@@ -28,7 +20,6 @@ const UnauthorizedUserError = require("../errors/unauthorizedusererr");
 
 const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
-  console.log("User ID from token:", userId);
   User.findById(userId)
     .orFail()
     .then((user) => {
@@ -44,7 +35,7 @@ const getCurrentUser = (req, res, next) => {
       if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
         return next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -97,7 +88,7 @@ const modifyCurrentUser = (req, res, next) => {
       if (err.message === INCORRECT_USER_ERROR_MESSAGE) {
         return next(new IncorrectUserError(INCORRECT_USER_ERROR_CODE));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -121,7 +112,7 @@ const createUser = (req, res, next) => {
       if (err.name === "MongoServerError") {
         return next(new ConflictError(CONFLICT_EMAIL_ERROR_MESSAGE));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -134,7 +125,7 @@ const login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      const name = user.name;
+      const { name } = user.name;
       res.status(200).send({ token, name });
     })
     .catch((err) => {
@@ -144,7 +135,7 @@ const login = (req, res, next) => {
       if (err.message.includes("Incorrect email or password")) {
         return next(new UnauthorizedUserError(UNAUTHORIZED_USER_LOGIN_MESSAGE));
       }
-      next(err);
+      return next(err);
     });
   //  if email & pass are good, create a JWT with one week expiration
   //  on the JWT, write user._id into the token payload.

@@ -7,18 +7,16 @@ const {
   likeItem,
   dislikeItem,
 } = require("../controllers/clothingitems");
-const { celebrate, Joi } = require("celebrate");
 const {
-  validateURL,
   validateItemId,
   validateClothingCreation,
   validateGetClothingItem,
 } = require("../middlewares/validation");
 
-// get clothing item by ID
+//  get clothing item by ID
 router.get("/", validateGetClothingItem(), getClothingItems);
 
-//create clothing item
+//  create clothing item
 router.post("/", auth, validateClothingCreation(), createClothingItem);
 router.delete("/:itemId", auth, validateItemId(), deleteClothingItem);
 
