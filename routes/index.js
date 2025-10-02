@@ -18,6 +18,6 @@ router.post("/signin", validateSignIn(), login);
 //  create user
 router.post("/signup", validateSignUp(), createUser);
 
-router.use((req, res) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
+router.use((next) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
 
 module.exports = router;

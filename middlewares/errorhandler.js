@@ -5,5 +5,5 @@ module.exports = (err, req, res, next) => {
     return next(new Error(DEFAULT_ERROR_CODE));
   }
   console.error(err);
-  res.status(err.statusCode).send({ message: err.message });
+  return res.status(err.statusCode).send({ message: err.message });
 };
